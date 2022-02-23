@@ -14,7 +14,7 @@ on:
   # workflow_dispatch:
   
   repository_dispatch:
-    types: [nur_event]
+    types: ["nur_event"]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
