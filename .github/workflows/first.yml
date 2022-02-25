@@ -57,5 +57,5 @@ jobs:
       
       - name: run test
         run: | 
-          echo "envKey=$(echo ${{ github.event.client_payload.param1 }} | cut -c 1-6)" >> $GITHUB_ENV
+          echo "envKey=$(echo ${{ github.event.client_payload.param1 }}" >> $GITHUB_ENV
           npm test
