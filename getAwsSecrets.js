@@ -36,6 +36,7 @@ async function getAwsSecretAsync (secretName) {
 // }
 
 async function sample() {
+    console.log(process.env.envKey);
     var [error, secret] = await getAwsSecretAsync(secretName);
     console.log(secret.SecretString);
 }
