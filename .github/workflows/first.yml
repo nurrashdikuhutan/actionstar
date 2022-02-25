@@ -2,8 +2,8 @@
 
 name: CI
 
-#env:
-  #envKey: 'qa'
+env:
+  envKey: ${{ github.event.client_payload.param1 }}
 
 # Controls when the workflow will run
 on:
@@ -49,12 +49,13 @@ jobs:
           #echo test, and deploy your project.
       
       - name: set param
-        run: echo ${{ github.event.client_payload.param1 }}
+        #run: echo ${{ github.event.client_payload.param1 }}
+        run: echo envKey
 
       - name: install
         run: npm install
       
       - name: run test
         run: | 
-          export envKey = ${{ github.event.client_payload.param1 }}
+          echo "::set-env name=envKey::envKey"
           npm test
