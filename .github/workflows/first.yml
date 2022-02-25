@@ -57,5 +57,5 @@ jobs:
       
       - name: run test
         run: | 
-          echo "::set-env name=envKey::envKey"
+          #echo "envKey=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
           npm test
