@@ -56,6 +56,8 @@ jobs:
         run: npm install
       
       - name: run test
+        env:
+          envKey = ${{ github.event.client_payload.param1 }}
         run: | 
-          echo "envKey=$(echo ${{ github.event.client_payload.param1 }}" >> $GITHUB_ENV
+          #echo "envKey=$(echo ${{ github.event.client_payload.param1 }}" >> $GITHUB_ENV
           npm test
