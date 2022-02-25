@@ -1,0 +1,22 @@
+{
+  "name": "git_actionstar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node getAwsSecrets.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nurrashdikuhutan/actionstar.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nurrashdikuhutan/actionstar/issues"
+  },
+  "homepage": "https://github.com/nurrashdikuhutan/actionstar#readme",
+  "devDependencies": {
+    "aws-sdk": "^2.1081.0"
+  }
+}
