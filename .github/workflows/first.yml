@@ -3,7 +3,7 @@
 name: CI
 
 env:
-  envKey: ${{ github.event.client_payload.param1 }}
+  ENVIRONMENT: ${{ github.event.client_payload.param1 }}
 
 # Controls when the workflow will run
 on:
