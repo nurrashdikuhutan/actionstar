@@ -3,7 +3,7 @@
 name: CI
 
 env:
-  ENVIRONMENT: ${{ github.event.client_payload.param1 }}
+  ENVIRONMENT: ${{ github.event.client_payload.envKey }}
 
 # Controls when the workflow will run
 on:
@@ -53,11 +53,12 @@ jobs:
         #run: echo envKey
 
       - name: install
-        run: npm install
+        run: echo 'NUR' #npm install
       
       - name: run test
         #env:
           #envKey = ${{ github.event.client_payload.param1 }}
         run: | 
           #echo "envKey=$(echo ${{ github.event.client_payload.param1 }}" >> $GITHUB_ENV
-          npm test
+          #npm test
+          echo '${{ env.ENVIRONMENT}}'
