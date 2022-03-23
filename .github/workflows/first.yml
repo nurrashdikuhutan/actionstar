@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
   
   repository_dispatch:
-    types: ['nur_event']
+    types: ['api_triggered']
     #inputs:
       #envKey:
         #description: 'Environment flag'
