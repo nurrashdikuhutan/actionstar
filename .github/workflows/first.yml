@@ -52,13 +52,14 @@ jobs:
         #run: echo ${{ github.event.client_payload.param1 }}
         #run: echo envKey
 
-      - name: install
-        run: echo 'NUR' #npm install
+      - name: testing
+        run: echo ${{ github.event.client_payload.envKey }}
+        #npm install
       
-      - name: run test
+      #- name: run test
         #env:
           #envKey = ${{ github.event.client_payload.param1 }}
-        run: | 
+        #run: | 
           #echo "envKey=$(echo ${{ github.event.client_payload.param1 }}" >> $GITHUB_ENV
           #npm test
           echo '${{ env.ENVIRONMENT}}'
