@@ -53,7 +53,7 @@ jobs:
         #run: echo envKey
 
       - name: testing
-        run: echo ${{ github.event.client_payload.envKey }}
+        run: echo '$ENVIRONMENT'
         #npm install
       
       #- name: run test
