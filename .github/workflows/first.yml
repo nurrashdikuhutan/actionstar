@@ -53,7 +53,9 @@ jobs:
         #run: echo envKey
 
       - name: testing
-        run: echo "Run here $envKey"
+        run: |
+          echo "From API $envKey"
+          echo "From ManualWorkflow {{ github.event.inputs.envKey }}"
         #npm install
       
       #- name: run test
