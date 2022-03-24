@@ -44,7 +44,7 @@ jobs:
       - if: ${{ env.apiEnvKey != ''}}
         run: |
           echo 'nur triggered api'
-          echo "envKey=$(echo ${{env.apiEnvKey}})" >> $GITHUB_ENV
+          echo "envKey=$(echo $apiEnvKey)" >> $GITHUB_ENV
       
       - run: echo "envKey is $envKey"
 
