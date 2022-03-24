@@ -39,7 +39,9 @@ jobs:
       - uses: actions/checkout@v2
 
       - if: ${{ env.manualEnvKey != ''}}
-        run: echo 'nur triggered manual workflow'
+        run: |
+          echo 'nur triggered manual workflow'
+          echo "envKey=$(echo $manualEnvKey)" >> $GITHUB_ENV
       
       - if: ${{ env.apiEnvKey != ''}}
         run: |
