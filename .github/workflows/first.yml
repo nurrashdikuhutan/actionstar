@@ -3,7 +3,9 @@
 name: CI
 
 env:
-  envKey: ${{ github.event.client_payload.envKey }}
+  apiEnvKey: ${{ github.event.client_payload.envKey }}
+  manualEnnvKey: ${{ github.event.inputs.envKey }}
+  envKey: 'dev'
 
 # Controls when the workflow will run
 on:
@@ -36,6 +38,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - if: ${{ github.event.inputs.args != ''}}
+        run: echo 'nur triggered manual workflow'
+
       # Runs a single command using the runners shell
       #- name: Run a one-line script
         #run: echo Hello, world!
@@ -54,8 +59,8 @@ jobs:
 
       - name: testing
         run: |
-          echo "From API $envKey"
-          echo "From ManualWorkflow ${{ github.event.inputs.envKey }}"
+          echo "From API $apiEnvKey"
+          echo "From ManualWorkflow $manualEnvKey"
         #npm install
       
       #- name: run test
