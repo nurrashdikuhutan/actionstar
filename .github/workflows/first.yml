@@ -38,8 +38,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - if: ${{ github.event.inputs.envKey != ''}}
+      - if: ${{ env.manualEnvKey != ''}}
         run: echo 'nur triggered manual workflow'
+      
+      - if: ${{ env.apiEnvKey != ''}}
+        run: echo 'nur triggered api'
+      
+      - run: echo "::set-env name=envKey::nurSetThis"
 
       # Runs a single command using the runners shell
       #- name: Run a one-line script
@@ -61,6 +66,7 @@ jobs:
         run: |
           echo "From API $apiEnvKey"
           echo "From ManualWorkflow $manualEnvKey"
+          echo "Environment key is $envKey"
         #npm install
       
       #- name: run test
