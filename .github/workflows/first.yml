@@ -44,7 +44,7 @@ jobs:
       - if: ${{ env.apiEnvKey != ''}}
         run: echo 'nur triggered api'
       
-      - run: echo "::set-env name=envKey::nurSetThis"
+      - run: env.enVKEY = 'NUR'
 
       # Runs a single command using the runners shell
       #- name: Run a one-line script
