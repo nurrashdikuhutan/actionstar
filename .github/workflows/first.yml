@@ -62,4 +62,4 @@ jobs:
         #run: | 
           #echo "envKey=$(echo ${{ github.event.client_payload.param1 }}" >> $GITHUB_ENV
           #npm test
-          echo '${{ env.ENVIRONMENT}}'
+          #ßecho '${{ env.ENVIRONMENT}}'
