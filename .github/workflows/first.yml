@@ -42,7 +42,9 @@ jobs:
         run: echo 'nur triggered manual workflow'
       
       - if: ${{ env.apiEnvKey != ''}}
-        run: echo 'nur triggered api'
+        run: |
+          echo 'nur triggered api'
+          echo "envKey=$(echo ${{env.apiEnvKey}})" >> $GITHUB_ENV
       
       - run: echo "envKey is $envKey"
 
