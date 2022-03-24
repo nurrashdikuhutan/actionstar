@@ -53,7 +53,7 @@ jobs:
         #run: echo envKey
 
       - name: testing
-        run: echo 'Run here $ENVIRONMENT'
+        run: echo "Run here $ENVIRONMENT"
         #npm install
       
       #- name: run test
