@@ -3,7 +3,7 @@
 name: CI
 
 env:
-  ENVIRONMENT: ${{ github.event.client_payload.envKey }}
+  envKey: ${{ github.event.client_payload.envKey }}
 
 # Controls when the workflow will run
 on:
@@ -53,7 +53,7 @@ jobs:
         #run: echo envKey
 
       - name: testing
-        run: echo "Run here $ENVIRONMENT"
+        run: echo "Run here $envKey"
         #npm install
       
       #- name: run test
