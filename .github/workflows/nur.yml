@@ -1,0 +1,28 @@
+name: CI
+
+env:
+  apiEnvKey: ${{ github.event.client_payload.envKey }}
+  manualEnvKey: ${{ github.event.inputs.envKey }}
+  envKey: 'dev'
+
+on:
+  push:
+    branches: [ main ]
+
+  workflow_dispatch:
+    inputs:
+          envKey:
+            description: 'Environment flag'
+            required: true
+            default: 'dev'
+  
+  repository_dispatch:
+    types: ['api_triggered']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: echo "envKey is $envKey"
+
