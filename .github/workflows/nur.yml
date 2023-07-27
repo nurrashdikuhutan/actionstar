@@ -20,6 +20,8 @@ on:
     types: ['api_triggered']
 
 jobs:
+  if: ${{ github.event_name != 'push' }}
+  run-name: Run Forrest
   build:
     runs-on: ubuntu-latest
 
@@ -27,6 +29,5 @@ jobs:
       - run: echo "envKey is $envKey"
       - run: echo 'nur'
 
-if: ${{ github.event_name != 'schedule' }}
-run-name: Run Forrest
+
 
