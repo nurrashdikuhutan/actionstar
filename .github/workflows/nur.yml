@@ -1,4 +1,4 @@
-name: CI
+name: CI-NUR
 
 env:
   apiEnvKey: ${{ github.event.client_payload.envKey }}
@@ -8,6 +8,7 @@ env:
 on:
   push:
     branches: [ main ]
+    run-name: 'NUR on push'
 
   workflow_dispatch:
     inputs:
@@ -15,6 +16,7 @@ on:
             description: 'Environment flag'
             required: true
             default: 'dev'
+    run-name: 'NUR Workflow Dispatch'
   
   repository_dispatch:
     types: ['api_triggered']
