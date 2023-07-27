@@ -1,7 +1,5 @@
 name: CI-NUR
 
-run-name: Run Forrest
-
 env:
   apiEnvKey: ${{ github.event.client_payload.envKey }}
   manualEnvKey: ${{ github.event.inputs.envKey }}
@@ -28,4 +26,7 @@ jobs:
     steps:
       - run: echo "envKey is $envKey"
       - run: echo 'nur'
+
+if: ${{ github.event_name != 'schedule' }}
+run-name: Run Forrest
 
