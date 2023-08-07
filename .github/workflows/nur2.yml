@@ -21,9 +21,11 @@ jobs:
         uses: actions/checkout@v2
 
       - name: 'NUR Step1'
+        env:
+          nur: 'nur_${{ github.event.inputs.envKey }}'
         run: |
           echo "envKey is $envKey"
-          echo 'nur'
+          echo $nur
 
 
 
