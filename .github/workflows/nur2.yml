@@ -25,7 +25,7 @@ jobs:
           nur: 'nur_${{ github.event.inputs.envKey }}'
         run: |
           echo "envKey is $envKey"
-          echo $nur
+          echo 'nur_${{ github.event.inputs.envKey }}'
 
 
 
