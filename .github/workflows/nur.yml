@@ -1,5 +1,7 @@
 name: CI-NUR
 
+run-name: Run Forrest
+
 env:
   apiEnvKey: ${{ github.event.client_payload.envKey }}
   manualEnvKey: ${{ github.event.inputs.envKey }}
@@ -20,9 +22,7 @@ on:
     types: ['api_triggered']
 
 jobs:
-  if: ${{ github.event_name != 'push' }}
-    run-name: Run Forrest
-    
+
   build:
     runs-on: ubuntu-latest
 
