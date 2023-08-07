@@ -1,0 +1,25 @@
+name: CI-NUR
+
+env:
+  manualEnvKey: ${{ github.event.inputs.envKey }}
+  envKey: 'dev'
+
+on:
+  workflow_dispatch:
+    inputs:
+          envKey:
+            description: 'Environment flag'
+            required: true
+            default: 'dev'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      name: 'NUR Step1'
+      - run: echo "envKey is $envKey"
+      - run: echo 'nur'
+
+
+
