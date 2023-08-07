@@ -78,48 +78,6 @@ jobs:
 
     steps:
       - name: Initialize Test Report Annotations
-        # create ANNOTATION env variable. The report config will retrieve this value from process.env.ANNOTATION
-        if: ${{ github.event.inputs.annotation != ''}} # manual workflow annotation
-          run: echo "ANNOTATION=$(echo ${{ github.event.inputs.annotation }})" >> $GITHUB_ENV
-        if: ${{ github.event.client_payload.annotation != ''}} # api trigger annotation
-          run: echo "ANNOTATION=$(echo ${{ github.event.client_payload.annotation }})" >> $GITHUB_ENV
-
-      # We need to matrixify android and ios
-      - name: Run yarn script
-        if: ${{ github.event_name == 'schedule' }}
-          run: echo "yarnScript=$(echo 'android.kakapo.sauce')" >> $GITHUB_ENV
-        if: ${{ github.event_name != 'schedule'}}
-          run: echo "yarnScript=$(echo ${{env.YARN_SCRIPT}})" >> $GITHUB_ENV
-
-      - name: Checkout Git Reference
-          uses: actions/checkout@v3
-            with:
-              clean: "false"
-              # fetch-depth may save additional git fetch roundtrip if merge-base is found within latest 10 commits
-              fetch-depth: 10
-              ref: 'mw_${{ github.event.inputs.git_reference }}' #tag prefixed with mw
-      
-      # Setup and Run Mocha test
-      - name: Setup and Run JJ Mocha Test 
-        uses: ./.github/actions/run-jj-mocha-test
-          env:
-            select_mobile: ${{ github.event.inputs.select_mobile }}
-            device_model: ${{ github.event.inputs.device_model }}
-            wallet_version: ${{ github.event.inputs.wallet_version }}  
-        with:
-          YARN_SCRIPT: "${{ env.yarnScript }}"
-          ENV_KEY: 'prod'
-          TENANT: 'e2e-prod'
-          NPMJS_TOKEN: ${{ secrets.NPMJS_TOKEN }}
-          BRANCH_SLACK_WEBHOOK: ${{ secrets.BRANCHTEST_SLACK_WEBHOOK_URL }}
-          MASTER_SLACK_WEBHOOK: ${{ secrets.E2ETEST_SLACK_WEBHOOK_URL }}
-          REPORTPORTAL_TOKEN: ${{ secrets.REPORTPORTAL_TOKEN }}
-
-      - name: Test Report
-        uses: dorny/test-reporter@c9b3d0e2bd2a4e96aaf424dbaa31c46b42318226 #pin @v1.60
-        if: success() || failure() # run this step even if previous step failed
-        with:
-          name: Test Report - MOBILE # Name of the check run which will be created
-          path: reports/wdio-junit/wdio-junit.xml # Path to test results
-          reporter: jest-junit # Format of test results
-
+        run: |
+          echo "envKey is $envKey"
+          echo 'nur_${{ github.event.inputs.envKey }}'
