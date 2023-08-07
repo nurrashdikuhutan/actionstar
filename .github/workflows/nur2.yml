@@ -18,11 +18,11 @@ jobs:
 
     steps:
       - name: checkout
-          uses: actions/checkout@v2
+        uses: actions/checkout@v2
 
       - name: 'NUR Step1'
-          run: echo "envKey is $envKey"
-          run: echo 'nur'
+        run: echo "envKey is $envKey"
+        run: echo 'nur'
 
 
 
