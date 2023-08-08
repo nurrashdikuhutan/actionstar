@@ -1,11 +1,14 @@
 name: NUR2
 
 env:
+  WORKFLOW_NAME: MattrVIIPlatform
   manualEnvKey: ${{ github.event.inputs.envKey }}
   envKey: 'dev'
   runName: '${{ github.event_name }} on ${{ github.event.inputs.envKey }} NUR'
 
-run-name: '${{ github.event_name }} ${{ github.event.head_commit.message }} on ${{ github.event.inputs.envKey }} NUR'
+# run-name: '${{ github.event_name }} ${{ github.event.head_commit.message }} on ${{ github.event.inputs.envKey }} NUR'
+
+run-name: echo '$WORKFLOW_NAME'
 
 on:
   workflow_dispatch:
