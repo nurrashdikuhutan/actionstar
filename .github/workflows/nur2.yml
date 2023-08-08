@@ -1,10 +1,11 @@
 name: NUR2
 
-run-name: '${{ github.event_name }} on ${{ github.event.inputs.envKey }}'
-
 env:
   manualEnvKey: ${{ github.event.inputs.envKey }}
   envKey: 'dev'
+  runName: '${{ github.event_name }} on ${{ github.event.inputs.envKey }} NUR'
+
+run-name: $runName
 
 on:
   workflow_dispatch:
