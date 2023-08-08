@@ -5,7 +5,7 @@ env:
   envKey: 'dev'
   runName: '${{ github.event_name }} on ${{ github.event.inputs.envKey }} NUR'
 
-run-name: ${{ env.runName }}
+run-name: ' s$env.runName'
 
 on:
   workflow_dispatch:
