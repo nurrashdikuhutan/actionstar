@@ -1,6 +1,6 @@
 name: NUR2
 
-run-name: RUN_BMG
+run-name: ${{ github.event.name }}
 
 env:
   manualEnvKey: ${{ github.event.inputs.envKey }}
