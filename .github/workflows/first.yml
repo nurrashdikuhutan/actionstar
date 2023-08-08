@@ -71,6 +71,7 @@ jobs:
           echo "From API $apiEnvKey"
           echo "From ManualWorkflow $manualEnvKey"
           echo "Environment key is $envKey"
+          echo "See what the onpush action name on other workflows will see"
         #npm install
       
       #- name: run test
