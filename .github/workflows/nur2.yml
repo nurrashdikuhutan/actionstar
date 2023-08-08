@@ -8,7 +8,7 @@ env:
 
 # run-name: '${{ github.event_name }} ${{ github.event.head_commit.message }} on ${{ github.event.inputs.envKey }} NUR'
 
-run-name: '${{ github.ref_name }} ${{ github.env.envKey }}'
+run-name: '${{ github.ref_name }} ${{ env.envKey }}'
 
 on:
   workflow_dispatch:
