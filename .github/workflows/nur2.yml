@@ -1,6 +1,6 @@
 name: NUR2
 
-run-name: ${{ github.event.name }}
+run-name: ${{ github.event_name }}
 
 env:
   manualEnvKey: ${{ github.event.inputs.envKey }}
