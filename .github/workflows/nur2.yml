@@ -12,7 +12,7 @@ env:
 
 # run-name: '${{ github.ref_name }} ${{ github.workflow }}'
 
-run-name: '${{ github.event_name }} ${{ github.event.head_commit.message }} ${{ github.workflow }} ${{ github.ref_name }} ${{ github.event.inputs.envKey }}'
+run-name: '${{ github.workflow }} ${{ github.event_name }} ${{ github.event.head_commit.message }} ${{ github.ref_name }} ${{ github.event.inputs.envKey }}'
 
 on:
   workflow_dispatch:
