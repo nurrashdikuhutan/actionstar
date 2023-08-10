@@ -23,7 +23,7 @@ env:
 run-name: '
   ${{ github.event.commits[0].message  || github.workflow }}
   ${{ github.event_name }}ed ->
-  ${{ github.ref_name }} 1
+  ${{ github.ref_name }} 1 2
 '
 
 on:
