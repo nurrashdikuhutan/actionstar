@@ -1,4 +1,4 @@
-name: Mattr-Wallet-Tests-ANDROID
+name: Mattr-Wallet-Tests-IOS
 
 run-name: '
   ${{ github.event.head_commit.message || github.workflow  }}
@@ -10,7 +10,7 @@ run-name: '
 env:
   # use this env var to identify which workflow is running
   # e.g it can be used by report portal config to customize the launcher name
-  WORKFLOW_NAME: MATTRWalletAndroid
+  WORKFLOW_NAME: MATTRWalletIOS
 
   #environment flag
   envKey: "qa" #switch to dev until stable
@@ -28,7 +28,7 @@ env:
 
   #miscellaneous env vars
   ANNOTATION: "n/a"
-  YARN_SCRIPT: "android.mattrWallet.sauce"
+  YARN_SCRIPT: "ios.mattrWallet.sauce"
   NODE_OPTIONS: "--max-old-space-size=5120"
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
@@ -53,17 +53,17 @@ on:
         required: false
         type: choice
         description: Device Model
-        default: "Google Pixel 4.*"
+        default: "iPhone 14.*"
         options:
-          - Google Pixel (4|6|7).*
-          - Google Pixel 4.*
-          - Google Pixel 6.*
-          - Google Pixel 7.*
+          - iPhone (14|13|12).*
+          - iPhone 14.*
+          - iPhone 13.*
+          - iPhone 12.*
       wallet_version:
         required: false
         type: choice
         description: Mattr Wallet App Version
-        default: "2.6.1" #default value will be used by schedule run thus we need to update this regularly
+        default: "2.6.1" #this value will be used in the schedule run and needs to be updated regularly
         options:
           - 2.6.1
           - 2.5.1
@@ -104,8 +104,8 @@ on:
   repository_dispatch:
     types: ["MATTRWallet"]
   schedule:
-    # DEV: Runs every 6pm UTC (6am NZT Winter, 7am NZT Summer)
-    - cron: "00 18 * * 0-4"
+    # DEV: Runs every 6:30pm UTC (6:30am NZT Winter, 7:30am NZT Summer)
+    - cron: "30 18 * * 0-4"
   push:
     paths:
       - "config/shared/**"
@@ -132,7 +132,6 @@ jobs:
       yarnScript: ''
 
     steps:
-
       # initialize git reference
       - if: ${{ github.event.inputs.git_reference != ''}}
         run: echo 'gitReference=$(echo ${{ github.event.inputs.git_reference }})' >> $GITHUB_ENV
@@ -141,50 +140,50 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # don't clean un-tracked files
       - uses: actions/checkout@v3
-        name: 'Checkout ${{ env.gitReference }}'
+        name: 'Checkout ${{ env.git_reference }}'
         with:
           clean: "false"
           ref: ${{ env.gitReference }}
 
       # initialize envKey
       - if: ${{ env.manualEnvKey != ''}}
-        name: Define envKey - workflow_dispatch
+        name: Check if envKey was defined - worklfow_dispatch
         run: echo "envKey=$(echo $manualEnvKey)" >> $GITHUB_ENV
       - if: ${{ env.apiEnvKey != ''}}
-        name: Define envKey - repository_dispatch
+        name: Check if envKey was defined - repository_dispatch
         run: echo "envKey=$(echo $apiEnvKey)" >> $GITHUB_ENV
 
       # initialize tenant
       - if: ${{ env.manualTenant != ''}}
-        name: Define tenant - workflow_dispatch
+        name: Set tenant if defined - workflow_dispatch
         run: echo "tenant=$(echo $manualTenant | cut -d ' ' -f2)" >> $GITHUB_ENV
       - if: ${{ env.apiTenant != ''}}
-        name: Define tenant - repository_dispatch
+        name: Set tenant if defined - workflow_dispatch
         run: echo "tenant=$(echo $apiTenant)" >> $GITHUB_ENV
 
       # initialize Test Report Annotations
       # create ANNOTATION env variable. The report config will retrieve this value from process.env.ANNOTATION
       - if: ${{ github.event.inputs.annotation != ''}} # manual workflow annotation
-        name: Define Report Annotation - workflow dispatch
+        name: Set Report Annotations - workflow_dispatch
         run: echo "ANNOTATION=$(echo ${{ github.event.inputs.annotation }})" >> $GITHUB_ENV
       - if: ${{ github.event.client_payload.annotation != ''}} # api trigger annotation
-        name: Define Report Annotation - repository_dispatch
+        name: Set Report Annotations - repository_dispatch
         run: echo "ANNOTATION=$(echo ${{ github.event.client_payload.annotation }})" >> $GITHUB_ENV
 
       # get repository dispatch mobile key
       - if: ${{ env.apiTenant != ''}}
-        name: Define YARN_SCRIPT for repository_dispatch
+        name: Define mobileKey - repository_dispatch
         run: echo "YARN_SCRIPT=${{ github.event.client_payload.mobileKey }}.mattrWallet.sauce" >> $GITHUB_ENV
       - if: ${{ github.event.inputs.select_mobile != ''}}
+        name: Define mobile type - workflow_dispatch
         run: echo "YARN_SCRIPT=$(echo ${{ github.event.inputs.select_mobile}}.mattrWallet.sauce)" >> $GITHUB_ENV
-        name: Define YARN_SCRIPT for workflow_dispatch
 
       #Build final yarn script with optional params
       - if: ${{ github.event.inputs.args != ''}}
-        name: Define Yarn Arguments if set
+        name: Define yarn script
         run: echo "yarnScript=$(echo ${{env.YARN_SCRIPT}} ${{github.event.inputs.args}})" >> $GITHUB_ENV
       - if: ${{ github.event.inputs.args == ''}}
-        name: Define Yarn Arguments if not set
+        name: Define yarn arguments
         run: echo "yarnScript=$(echo ${{env.YARN_SCRIPT}})" >> $GITHUB_ENV
 
       #Start Express server
@@ -233,7 +232,7 @@ jobs:
       matrix:
         script:
           [
-            "dev|dev2|android.mattrWallet.sauce"
+            "dev|dev2|ios.mattrWallet.sauce"
           ]
     runs-on: [self-hosted, macos, e2e]
     timeout-minutes: 120
@@ -243,13 +242,13 @@ jobs:
     steps:
       # initialize envKey
       - run: echo "envKey=$(echo '${{matrix.script}}' | cut -d '|' -f1)" >> $GITHUB_ENV
-        name: 'Define $envKey parameter'
+        name: 'Setup $envKey parameter'
       # initialize tenant
       - run: echo "tenant=$(echo '${{matrix.script}}' | cut -d '|' -f2)" >> $GITHUB_ENV
-        name: 'Define $tenant parameter'
+        name: 'Setup $tenant parameter'
       # initialize script to run
       - run: echo "MATRIX_SCRIPT_TO_RUN=$(echo '${{matrix.script}}' | cut -d '|' -f3)" >> $GITHUB_ENV
-        name: 'Define $MATRIX_SCRIPT_TO_RUN parameter'
+        name: 'Setup $MATRIX_SCRIPT_TO_RUN parameter'
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # don't clean un-tracked files
@@ -265,7 +264,7 @@ jobs:
       # Setup and Run Mocha test
       - uses: ./.github/actions/run-jj-mocha-test
         env:
-          device_model: "(Google Pixel.*|Samsung.*)" #we open any samsung and google pixel device for schedule runs
+          device_model: "iPhone.*" #We open all devices on schedule runs
           wallet_version: ${{ env.mobileVersion }}
         name: Setup and Run JJ Mocha Test
         with:
