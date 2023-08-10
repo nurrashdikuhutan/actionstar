@@ -1,17 +1,21 @@
 name: Kakapo-PVT
 
 run-name: '
-  ${{ github.event_name }} 
-  ${{ github.event.head_commit.message || github.workflow }}
-  ${{ github.event.inputs.envKey }}
-  '
+  ${{ github.event.head_commit.message  || github.workflow }}
+  ON ${{ github.event_name }}
+  -> ${{ github.ref_name }}
+'
 
 env:
   # use this env var to identify which workflow is running
   # e.g it can be used by report portal config to customize the launcher name
   WORKFLOW_NAME: KakapoPVT
 
-  #miscellaneous env vars 
+  #defaults
+  gitReference: 'mw_2.6.1'
+  mobileVersion: '2.6.1'
+
+  #miscellaneous env vars
   ANNOTATION: "n/a"
   YARN_SCRIPT: "${{ github.event.inputs.select_mobile }}.kakapo.sauce"
   NODE_OPTIONS: "--max-old-space-size=5120"
@@ -26,14 +30,14 @@ permissions:
   id-token: write
   checks: write
   statuses: write
-  
+
 on:
   workflow_dispatch:
     inputs:
       git_reference:
         required: true
-        description: JJ Target Git Version  
-        default: "master"  
+        description: JJ Git Version (master, mw_2.6.1 or subbranch)
+        default: "mw_2.6.1"
       wallet_version:
         required: false
         type: choice
@@ -69,19 +73,19 @@ jobs:
         run: echo "ANNOTATION=$(echo ${{ github.event.client_payload.annotation }})" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
-        name: 'Checkout reference: ${{ github.event.inputs.git_reference }}'
+        name: 'Checkout reference: ${{ env.gitReference }}'
         with:
           clean: "false"
           # fetch-depth may save additional git fetch roundtrip if merge-base is found within latest 10 commits
           fetch-depth: 10
-          ref: ${{ github.event.inputs.git_reference }}
-      
+          ref: ${{ env.gitReference }}
+
       # Setup and Run Mocha test
       - uses: ./.github/actions/run-jj-mocha-test
         env:
           select_mobile: ${{ github.event.inputs.select_mobile }}
-          wallet_version: ${{ github.event.inputs.wallet_version }}
-        name: Setup and Run JJ Mocha Test    
+          wallet_version: ${{ env.mobileVersion }}
+        name: Setup and Run JJ Mocha Test
         with:
           YARN_SCRIPT: "android.kakapo.sauce"
           ENV_KEY: 'prod'
@@ -98,7 +102,7 @@ jobs:
           name: Test Report - MOBILE # Name of the check run which will be created
           path: reports/wdio-junit/wdio-junit.xml # Path to test results
           reporter: jest-junit # Format of test results
-  
+
   pvt-ios:
     runs-on: [self-hosted, macos, e2e]
     timeout-minutes: 10
@@ -115,19 +119,19 @@ jobs:
         run: echo "ANNOTATION=$(echo ${{ github.event.client_payload.annotation }})" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
-        name: 'Checkout ${{ github.event.inputs.git_reference }}'
+        name: 'Checkout ${{ env.gitReference }}'
         with:
           clean: "false"
           # fetch-depth may save additional git fetch roundtrip if merge-base is found within latest 10 commits
           fetch-depth: 10
-          ref: ${{ github.event.inputs.git_reference }}
-      
+          ref: ${{ env.gitReference }}
+
       # Setup and Run Mocha test
       - uses: ./.github/actions/run-jj-mocha-test
         env:
           select_mobile: ${{ github.event.inputs.select_mobile }}
-          wallet_version: ${{ github.event.inputs.wallet_version }}
-        name: Setup and Run JJ Mocha Test    
+          wallet_version: ${{ env.mobileVersion }}
+        name: Setup and Run JJ Mocha Test
         with:
           YARN_SCRIPT: "ios.kakapo.sauce"
           ENV_KEY: 'prod'
