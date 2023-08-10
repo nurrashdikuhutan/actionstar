@@ -14,11 +14,17 @@ env:
 
 # run-name: '${{ github.workflow }} ${{ github.event_name }} ${{ github.event.head_commit.message }} ${{ github.ref_name }} ${{ github.event.inputs.envKey }}'
 
+# run-name: '
+#   ${{ github.event_name }}
+#   ${{ github.event.head_commit.message || github.workflow }}
+#   ${{ github.event.inputs.envKey }}
+#   '
+
 run-name: '
-  ${{ github.event_name }} 
-  ${{ github.event.head_commit.message || github.workflow }}
-  ${{ github.event.inputs.envKey }}
-  '
+  ${{ github.event.commits[0].message  || github.workflow }}
+  ${{ github.event_name }}ed ->
+  ${{ github.ref_name }}
+'
 
 on:
   workflow_dispatch:
