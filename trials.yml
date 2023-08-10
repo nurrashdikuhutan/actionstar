@@ -1,15 +1,26 @@
-name: Kakapo-PVT
+name: Mattr-Wallet-Tests-ANDROID
 
 run-name: '
-  ${{ github.event.head_commit.message  || github.workflow }}
+  ${{ github.event.head_commit.message || github.workflow  }}
   ON ${{ github.event_name }}
-  -> ${{ github.ref_name }}
+  -> ${{ github.event.inputs.tenant || github.ref_name }}
+  -> ${{ github.event.inputs.wallet_version }}
 '
 
 env:
   # use this env var to identify which workflow is running
   # e.g it can be used by report portal config to customize the launcher name
-  WORKFLOW_NAME: KakapoPVT
+  WORKFLOW_NAME: MATTRWalletAndroid
+
+  #environment flag
+  envKey: "qa" #switch to dev until stable
+  manualEnvKey: ${{ github.event.inputs.envKey }}
+  apiEnvKey: ${{ github.event.client_payload.envKey }}
+
+  #tenant flag
+  tenant: "qa2" #switch to dev until stable
+  manualTenant: ${{ github.event.inputs.tenant }}
+  apiTenant: ${{ github.event.client_payload.tenant }}
 
   #defaults
   gitReference: 'mw_2.6.1'
@@ -17,7 +28,7 @@ env:
 
   #miscellaneous env vars
   ANNOTATION: "n/a"
-  YARN_SCRIPT: "${{ github.event.inputs.select_mobile }}.kakapo.sauce"
+  YARN_SCRIPT: "android.mattrWallet.sauce"
   NODE_OPTIONS: "--max-old-space-size=5120"
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
@@ -38,104 +49,163 @@ on:
         required: true
         description: JJ Git Version (master, mw_2.6.1 or subbranch)
         default: "mw_2.6.1"
+      device_model:
+        required: false
+        type: choice
+        description: Device Model
+        default: "Google Pixel 4.*"
+        options:
+          - Google Pixel (4|6|7).*
+          - Google Pixel 4.*
+          - Google Pixel 6.*
+          - Google Pixel 7.*
       wallet_version:
         required: false
         type: choice
         description: Mattr Wallet App Version
-        default: '2.6.1'
+        default: "2.6.1" #default value will be used by schedule run thus we need to update this regularly
         options:
           - 2.6.1
           - 2.5.1
+      envKey:
+        required: true
+        type: choice
+        description: 'Environment flag'
+        default: "qa"
+        options:
+          - dev
+          - qa
+          - staging
+          - us901
+          - ca01
+          - eu901
+          - au903
+          - prod
+      tenant:
+        required: true
+        type: choice
+        description: 'Tenant flag'
+        default: "(qa) qa2"
+        options:
+          - (dev) dev2
+          - (qa) qa2
+          - (staging) mattr-qa
+          - (us901) e2e-us901
+          - (ca01) e2e-ca01
+          - (eu901) e2e-eu901
+          - (au903) e2e-au903
+          - (prod) e2e-prod
+      args:
+        description: "[OPTIONAL] Additional WDIO parameters"
+        required: false
       annotation:
         description: "[OPTIONAL] Test report annotations"
         required: false
   repository_dispatch:
-    types: ["KakapoPVT"]
-
+    types: ["MATTRWallet"]
   schedule:
-    # PROD: Runs every MON and WED 8am UTC (8pm NZT Winter, 9pm NZT Summer)
-    - cron: "00 8 * * 1,3"
+    # DEV: Runs every 6pm UTC (6am NZT Winter, 7am NZT Summer)
+    - cron: "00 18 * * 0-4"
+  push:
+    paths:
+      - "config/shared/**"
+      - "config/mattrWallet/**"
+      - "scripts/express_servers/**"
+      - "scripts/mobile/**"
+      - "setup/**"
+      - "support/app/**"
+      - "support/common/express.utils.ts"
+      - "support/common/qrcode.utils.ts"
+      - "test/app/**"
+      - "types/**"
+
 
 jobs:
-  pvt-android:
+  #===============================================================================#
+  # Manual Workflow dispatch / Repository Dispatch / On push
+  #===============================================================================#
+  dispatched_job:
+    if: ${{ github.event_name != 'schedule' }}
     runs-on: [self-hosted, macos, e2e]
-    timeout-minutes: 10
+    timeout-minutes: 120
+    env:
+      yarnScript: ''
 
     steps:
 
-      # initialize Test Report Annotations
-      # create ANNOTATION env variable. The report config will retrieve this value from process.env.ANNOTATION
-      - if: ${{ github.event.inputs.annotation != ''}} # manual workflow annotation
-        name: Check if annotation exist - manual dispatch
-        run: echo "ANNOTATION=$(echo ${{ github.event.inputs.annotation }})" >> $GITHUB_ENV
-      - if: ${{ github.event.client_payload.annotation != ''}} # api trigger annotation
-        name: Check if annotation exist - repository_dispatch
-        run: echo "ANNOTATION=$(echo ${{ github.event.client_payload.annotation }})" >> $GITHUB_ENV
+      # initialize git reference
+      - if: ${{ github.event.inputs.git_reference != ''}}
+        run: echo 'gitReference=$(echo ${{ github.event.inputs.git_reference }})' >> $GITHUB_ENV
+        name: 'Git Reference in use: ${{ env.gitReference }}'
 
-      - uses: actions/checkout@v3
-        name: 'Checkout reference: ${{ env.gitReference }}'
-        with:
-          clean: "false"
-          # fetch-depth may save additional git fetch roundtrip if merge-base is found within latest 10 commits
-          fetch-depth: 10
-          ref: ${{ env.gitReference }}
-
-      # Setup and Run Mocha test
-      - uses: ./.github/actions/run-jj-mocha-test
-        env:
-          select_mobile: ${{ github.event.inputs.select_mobile }}
-          wallet_version: ${{ env.mobileVersion }}
-        name: Setup and Run JJ Mocha Test
-        with:
-          YARN_SCRIPT: "android.kakapo.sauce"
-          ENV_KEY: 'prod'
-          TENANT: 'e2e-prod'
-          NPMJS_TOKEN: ${{ secrets.NPMJS_TOKEN }}
-          BRANCH_SLACK_WEBHOOK: ${{ secrets.BRANCHTEST_SLACK_WEBHOOK_URL }}
-          MASTER_SLACK_WEBHOOK: ${{ secrets.E2ETEST_SLACK_WEBHOOK_URL }}
-          REPORTPORTAL_TOKEN: ${{ secrets.REPORTPORTAL_TOKEN }}
-
-      - name: Test Report
-        uses: dorny/test-reporter@c9b3d0e2bd2a4e96aaf424dbaa31c46b42318226 #pin @v1.60
-        if: success() || failure() # run this step even if previous step failed
-        with:
-          name: Test Report - MOBILE # Name of the check run which will be created
-          path: reports/wdio-junit/wdio-junit.xml # Path to test results
-          reporter: jest-junit # Format of test results
-
-  pvt-ios:
-    runs-on: [self-hosted, macos, e2e]
-    timeout-minutes: 10
-
-    steps:
-
-      # initialize Test Report Annotations
-      # create ANNOTATION env variable. The report config will retrieve this value from process.env.ANNOTATION
-      - if: ${{ github.event.inputs.annotation != ''}} # manual workflow annotation
-        name: Check if annotation exist - manual_dispatch
-        run: echo "ANNOTATION=$(echo ${{ github.event.inputs.annotation }})" >> $GITHUB_ENV
-      - if: ${{ github.event.client_payload.annotation != ''}} # api trigger annotation
-        name: Check if annotation exist - repository_dispatch
-        run: echo "ANNOTATION=$(echo ${{ github.event.client_payload.annotation }})" >> $GITHUB_ENV
-
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # don't clean un-tracked files
       - uses: actions/checkout@v3
         name: 'Checkout ${{ env.gitReference }}'
         with:
           clean: "false"
-          # fetch-depth may save additional git fetch roundtrip if merge-base is found within latest 10 commits
-          fetch-depth: 10
           ref: ${{ env.gitReference }}
+
+      # initialize envKey
+      - if: ${{ env.manualEnvKey != ''}}
+        name: Define envKey - workflow_dispatch
+        run: echo "envKey=$(echo $manualEnvKey)" >> $GITHUB_ENV
+      - if: ${{ env.apiEnvKey != ''}}
+        name: Define envKey - repository_dispatch
+        run: echo "envKey=$(echo $apiEnvKey)" >> $GITHUB_ENV
+
+      # initialize tenant
+      - if: ${{ env.manualTenant != ''}}
+        name: Define tenant - workflow_dispatch
+        run: echo "tenant=$(echo $manualTenant | cut -d ' ' -f2)" >> $GITHUB_ENV
+      - if: ${{ env.apiTenant != ''}}
+        name: Define tenant - repository_dispatch
+        run: echo "tenant=$(echo $apiTenant)" >> $GITHUB_ENV
+
+      # initialize Test Report Annotations
+      # create ANNOTATION env variable. The report config will retrieve this value from process.env.ANNOTATION
+      - if: ${{ github.event.inputs.annotation != ''}} # manual workflow annotation
+        name: Define Report Annotation - workflow dispatch
+        run: echo "ANNOTATION=$(echo ${{ github.event.inputs.annotation }})" >> $GITHUB_ENV
+      - if: ${{ github.event.client_payload.annotation != ''}} # api trigger annotation
+        name: Define Report Annotation - repository_dispatch
+        run: echo "ANNOTATION=$(echo ${{ github.event.client_payload.annotation }})" >> $GITHUB_ENV
+
+      # get repository dispatch mobile key
+      - if: ${{ env.apiTenant != ''}}
+        name: Define YARN_SCRIPT for repository_dispatch
+        run: echo "YARN_SCRIPT=${{ github.event.client_payload.mobileKey }}.mattrWallet.sauce" >> $GITHUB_ENV
+      - if: ${{ github.event.inputs.select_mobile != ''}}
+        run: echo "YARN_SCRIPT=$(echo ${{ github.event.inputs.select_mobile}}.mattrWallet.sauce)" >> $GITHUB_ENV
+        name: Define YARN_SCRIPT for workflow_dispatch
+
+      #Build final yarn script with optional params
+      - if: ${{ github.event.inputs.args != ''}}
+        name: Define Yarn Arguments if set
+        run: echo "yarnScript=$(echo ${{env.YARN_SCRIPT}} ${{github.event.inputs.args}})" >> $GITHUB_ENV
+      - if: ${{ github.event.inputs.args == ''}}
+        name: Define Yarn Arguments if not set
+        run: echo "yarnScript=$(echo ${{env.YARN_SCRIPT}})" >> $GITHUB_ENV
+
+      #Start Express server
+      - name: Run Express Callback server
+        run: yarn run start.express &>/dev/null &
+
+      #Initialize wallet version
+      - if: ${{ github.event.inputs.wallet_version != ''}}
+        run: echo 'mobileVersion=$(echo ${{ github.event.inputs.wallet_version }})' >> $GITHUB_ENV
+        name: 'Wallet Version in use: ${{ env.mobileVersion }}'
 
       # Setup and Run Mocha test
       - uses: ./.github/actions/run-jj-mocha-test
         env:
-          select_mobile: ${{ github.event.inputs.select_mobile }}
+          device_model: ${{ github.event.inputs.device_model }}
           wallet_version: ${{ env.mobileVersion }}
         name: Setup and Run JJ Mocha Test
         with:
-          YARN_SCRIPT: "ios.kakapo.sauce"
-          ENV_KEY: 'prod'
-          TENANT: 'e2e-prod'
+          YARN_SCRIPT: ${{ env.yarnScript }}
+          ENV_KEY: ${{ env.envKey }}
+          TENANT: ${{ env.tenant }}
           NPMJS_TOKEN: ${{ secrets.NPMJS_TOKEN }}
           BRANCH_SLACK_WEBHOOK: ${{ secrets.BRANCHTEST_SLACK_WEBHOOK_URL }}
           MASTER_SLACK_WEBHOOK: ${{ secrets.E2ETEST_SLACK_WEBHOOK_URL }}
@@ -149,3 +219,72 @@ jobs:
           path: reports/wdio-junit/wdio-junit.xml # Path to test results
           reporter: jest-junit # Format of test results
 
+      - name: Stop Express Callback server
+        if: always()
+        run: yarn run stop.express &>/dev/null &
+
+  #=============================================
+  # Scheduled
+  #=============================================
+  scheduled_job:
+    if: ${{ github.event_name == 'schedule'}}
+    strategy:
+      fail-fast: false # don't cancel other job if 1 of them fail
+      matrix:
+        script:
+          [
+            "dev|dev2|android.mattrWallet.sauce"
+          ]
+    runs-on: [self-hosted, macos, e2e]
+    timeout-minutes: 120
+    env:
+      MATRIX_SCRIPT_TO_RUN: ''
+
+    steps:
+      # initialize envKey
+      - run: echo "envKey=$(echo '${{matrix.script}}' | cut -d '|' -f1)" >> $GITHUB_ENV
+        name: 'Define $envKey parameter'
+      # initialize tenant
+      - run: echo "tenant=$(echo '${{matrix.script}}' | cut -d '|' -f2)" >> $GITHUB_ENV
+        name: 'Define $tenant parameter'
+      # initialize script to run
+      - run: echo "MATRIX_SCRIPT_TO_RUN=$(echo '${{matrix.script}}' | cut -d '|' -f3)" >> $GITHUB_ENV
+        name: 'Define $MATRIX_SCRIPT_TO_RUN parameter'
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # don't clean un-tracked files
+      - uses: actions/checkout@v3
+        name: 'Checkout ${{ env.gitReference }}'
+        with:
+          clean: "false"
+          ref: ${{ env.gitReference }}
+
+      - name: Run Express Callback server
+        run: yarn run start.express &>/dev/null &
+
+      # Setup and Run Mocha test
+      - uses: ./.github/actions/run-jj-mocha-test
+        env:
+          device_model: "(Google Pixel.*|Samsung.*)" #we open any samsung and google pixel device for schedule runs
+          wallet_version: ${{ env.mobileVersion }}
+        name: Setup and Run JJ Mocha Test
+        with:
+          YARN_SCRIPT: ${{ env.MATRIX_SCRIPT_TO_RUN }}
+          ENV_KEY: ${{ env.envKey }}
+          TENANT: ${{ env.tenant }}
+          NPMJS_TOKEN: ${{ secrets.NPMJS_TOKEN }}
+          BRANCH_SLACK_WEBHOOK: ${{ secrets.BRANCHTEST_SLACK_WEBHOOK_URL }}
+          MASTER_SLACK_WEBHOOK: ${{ secrets.E2ETEST_SLACK_WEBHOOK_URL }}
+          REPORTPORTAL_TOKEN: ${{ secrets.REPORTPORTAL_TOKEN }}
+
+      - name: Test Report
+        uses: dorny/test-reporter@c9b3d0e2bd2a4e96aaf424dbaa31c46b42318226 #pin @v1.60
+        if: success() || failure() # run this step even if previous step failed
+        with:
+          name: Test Report - ${{ env.MATRIX_SCRIPT_TO_RUN }} # Name of the check run which will be created
+          path: reports/wdio-junit/wdio-junit.xml # Path to test results
+          reporter: jest-junit # Format of test results
+
+      - name: Stop Express Callback server
+        if: always()
+        run: yarn run stop.express &>/dev/null &
