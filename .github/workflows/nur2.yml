@@ -20,8 +20,14 @@ env:
 #   ${{ github.event.inputs.envKey }}
 #   '
 
+# run-name: '
+#   ${{ github.event.commits[0].message  || github.workflow }}
+#   ${{ github.event_name }}ed ->
+#   ${{ github.ref_name }} 1 2
+# '
+
 run-name: '
-  ${{ github.event.commits[0].message  || github.workflow }}
+  ${{ github.event.head_commit.message  || github.workflow }}
   ${{ github.event_name }}ed ->
   ${{ github.ref_name }} 1 2
 '
