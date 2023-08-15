@@ -33,7 +33,7 @@ env:
 # '
 
 run-name: '
-  ${{ github.env.envKey }}
+  ${{ env.envKey }}
 '
 
 on:
