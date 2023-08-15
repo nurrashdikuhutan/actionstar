@@ -26,10 +26,14 @@ env:
 #   ${{ github.ref_name }} 1 2
 # '
 
+# run-name: '
+#   ${{ github.event.head_commit.message  || github.workflow }}
+#   ${{ github.event_name }} ->
+#   ${{ github.ref_name }}
+# '
+
 run-name: '
-  ${{ github.event.head_commit.message  || github.workflow }}
-  ${{ github.event_name }} ->
-  ${{ github.ref_name }} 1 2
+  ${{ github.env.envKey }}
 '
 
 on:
