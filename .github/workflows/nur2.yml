@@ -42,7 +42,7 @@ on:
           envKey:
             description: 'Environment flag'
             required: true
-            default: '$envKey'
+            default: 'echo ${{ envKey }}'
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main ]
