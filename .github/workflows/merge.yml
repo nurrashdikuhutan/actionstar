@@ -3,10 +3,9 @@ name: merge yml
 on:
     workflow_dispatch:
         inputs:
-            envKey:
-              description: 'Environment flag'
+            branch_name:
+              description: 'Branch Name'
               required: true
-              default: '$envKey'
 
 jobs:
   build:
@@ -14,4 +13,5 @@ jobs:
 
     steps:
         - name: step1
-          uses: actions/checkout@v2
+          run: |
+            echo "Nur"
