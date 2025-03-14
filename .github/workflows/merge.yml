@@ -1,0 +1,17 @@
+name: merge yml
+
+on:
+    workflow_dispatch:
+        inputs:
+            envKey:
+              description: 'Environment flag'
+              required: true
+              default: '$envKey'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: step1
+          uses: actions/checkout@v2
