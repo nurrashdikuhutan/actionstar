@@ -14,7 +14,9 @@ jobs:
     steps:
         - name: step1
           run: |
+            git checkout main
             git merge --squash nk/trial1
+            git commit -m "Squashed trial"
             echo "Nur"
 
 
